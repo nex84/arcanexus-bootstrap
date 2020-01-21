@@ -1,23 +1,23 @@
 #!/bin/bash -v
 
 # retrieve dependancies
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o ./packagelist_yum
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o ./packagelist_pip3
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip -o ./packagelist_pip
+curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
+curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
+curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip -o /tmp/packagelist_pip
 #activate repos
 amazon-linux-extras install -y epel lamp-mariadb10.2-php7.2 php7.2 
 
 yum makecache -y 
 yum update -y *
-yum install -y $(cat ./packagelist_yum)
+yum install -y $(cat /tmp/packagelist_yum)
 
-pip3 install -U $(cat ./packagelist_pip3)
-pip install -U $(cat ./packagelist_pip)
+pip3 install -U $(cat /tmp/packagelist_pip3)
+pip install -U $(cat /tmp/packagelist_pip)
 
 # CodeDeploy Agent
-wget https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install 
-chmod +x install 
-./install auto 
+curl https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install -o /tmp/install
+chmod +x /tmp/install 
+/tmp/install auto 
 service codedeploy-agent start 
 
 # CloudWatch Agent
