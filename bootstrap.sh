@@ -3,16 +3,14 @@
 # retrieve dependancies
 curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
 curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip -o /tmp/packagelist_pip
 #activate repos
-amazon-linux-extras install -y epel lamp-mariadb10.2-php7.2 php7.2 
+amazon-linux-extras install -y epel
 
 yum makecache -y 
 yum update -y *
 yum install -y $(cat /tmp/packagelist_yum)
 
 pip3 install -U $(cat /tmp/packagelist_pip3)
-pip install -U $(cat /tmp/packagelist_pip)
 
 # CodeDeploy Agent
 curl https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install -o /tmp/install

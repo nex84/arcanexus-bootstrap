@@ -9,5 +9,4 @@ wget
 oathtool
 ruby
 jq
-python-pip
 python3-pip
