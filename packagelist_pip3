@@ -1,4 +1,4 @@
 cryptography==3.3.2
-ansible
+ansible==2.9
 boto3
 awscli
