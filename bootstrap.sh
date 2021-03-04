@@ -44,7 +44,7 @@ done
 # Install Datadog Agent
 /usr/local/bin/ansible-galaxy role install  Datadog.datadog
 # /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
-DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=d8eda6ae5051c28a768b4154311facc5 DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+DD_AGENT_MAJOR_VERSION=7 DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
 # Activate processes monitoring
 echo <<EOF >> /etc/datadog-agent/datadog.yaml
 process_config:
