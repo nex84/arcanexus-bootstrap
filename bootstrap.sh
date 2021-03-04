@@ -42,8 +42,23 @@ do
 done
 
 # Install Datadog Agent
-/usr/bin/ansible-galaxy install Datadog.datadog
-/usr/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
+/usr/local/bin/ansible-galaxy role install  Datadog.datadog
+# /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
+DD_AGENT_MAJOR_VERSION=7 DD_API_KEY=d8eda6ae5051c28a768b4154311facc5 DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+# Activate processes monitoring
+echo <<EOF >> /etc/datadog-agent/datadog.yaml
+process_config:
+  enabled: 'true'
+EOF
+# Activate network monitoring
+sudo -u dd-agent echo <<EOF >> /etc/datadog-agent/system-probe.yaml
+network_config:   # use system_probe_config for Agent's older than 7.24.1
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable Network Performance Monitoring.
+  #
+  enabled: true
+EOF
+systemctl restart datadog-agent
 
 #launch cloud init scripts
 /opt/scripts/AWS/cloud-init/common.sh
