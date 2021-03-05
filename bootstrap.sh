@@ -18,9 +18,6 @@ chmod +x /tmp/install
 /tmp/install auto 
 service codedeploy-agent start 
 
-# CloudWatch Agent
-#TODO
-
 #retrieve scripts
 for PIPELINENAME in GitScripts 
 do 
@@ -46,5 +43,11 @@ done
 # /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
 /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml
 
+# CloudWatch Agent
+/usr/local/bin/ansible-playbook /opt/scripts/ansible/amazon-cloudwatch-agent/install.yml
+
 #launch cloud init scripts
 /opt/scripts/AWS/cloud-init/common.sh
+
+# Final Report
+/usr/local/bin/ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
