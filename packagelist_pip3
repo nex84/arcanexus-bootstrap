@@ -1,6 +1,7 @@
-cryptography==3.3.2
-ansible==2.9
+#cryptography==3.3.2
+ansible
 boto3
-awscli
+#awscli
 requests
 docker
+bpytop

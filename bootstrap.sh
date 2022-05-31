@@ -12,6 +12,9 @@ yum install -y $(cat /tmp/packagelist_yum)
 
 pip3 install -U $(cat /tmp/packagelist_pip3)
 
+export AWS_DEFAULT_REGION=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
+echo "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" | tee -a /etc/environment
+
 # CodeDeploy Agent
 curl https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install -o /tmp/install
 chmod +x /tmp/install 
@@ -21,10 +24,10 @@ service codedeploy-agent start
 #retrieve scripts
 for PIPELINENAME in GitScripts 
 do 
-    PIPELINEID=`aws codepipeline start-pipeline-execution --name $PIPELINENAME --region eu-west-1 | jq -r '.pipelineExecutionId' | sed 's/\\n//g' `
+    PIPELINEID=`aws codepipeline start-pipeline-execution --name $PIPELINENAME --region ${AWS_DEFAULT_REGION} | jq -r '.pipelineExecutionId' | sed 's/\\n//g' `
     PIPELINESTATUS='' 
     while [ 1 -eq 1 ] ; do 
-        PIPELINESTATUS=`aws codepipeline get-pipeline-execution --pipeline-name $PIPELINENAME --pipeline-execution-id $PIPELINEID --region eu-west-1 | jq '.pipelineExecution.status' -r | sed 's/\\n//g' ` 
+        PIPELINESTATUS=`aws codepipeline get-pipeline-execution --pipeline-name $PIPELINENAME --pipeline-execution-id $PIPELINEID --region ${AWS_DEFAULT_REGION} | jq '.pipelineExecution.status' -r | sed 's/\\n//g' ` 
         if [ "$PIPELINESTATUS" = "Succeeded" ] ; then 
           echo " Success"
           break 
