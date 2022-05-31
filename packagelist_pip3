@@ -1,7 +1,5 @@
-#cryptography==3.3.2
 ansible
 boto3
-#awscli
 requests
 docker
 bpytop
