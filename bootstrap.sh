@@ -8,7 +8,7 @@ curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_
 amazon-linux-extras install -y epel
 
 yum makecache -y 
-yum update -y *
+yum update -y
 yum install -y $(cat /tmp/packagelist_yum | egrep -v 'ˆ#')
 
 pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v 'ˆ#')
