@@ -64,7 +64,7 @@ do
 done
 
 # Install Datadog Agent
-DATADOG_API_KEY=`aws ssm get-parameter --name "gandi_api_key" --with-decryption | jq -r .Parameter.Value`
+DATADOG_API_KEY=`aws ssm get-parameter --name "datadog_api_key" --with-decryption | jq -r .Parameter.Value`
 /usr/local/bin/ansible-galaxy install Datadog.datadog
 # /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
 /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
