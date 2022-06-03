@@ -19,7 +19,12 @@ ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v 'ˆ#
 yum remove awscli -y
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-./aws/install
+AWSCLI_VERSION=`aws --version 2 > /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
+if [ "$AWSCLI_VERSION" == "2"  ]; then
+  ./aws/install -U
+else
+  ./aws/install
+fi
 
 export AWS_DEFAULT_REGION=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
 echo "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" | tee -a /etc/environment
@@ -45,10 +50,10 @@ do
     PIPELINESTATUS='' 
     while [ 1 -eq 1 ] ; do 
         PIPELINESTATUS=`aws codepipeline get-pipeline-execution --pipeline-name $PIPELINENAME --pipeline-execution-id $PIPELINEID --region ${AWS_DEFAULT_REGION} | jq '.pipelineExecution.status' -r | sed 's/\\n//g' ` 
-        if [ "$PIPELINESTATUS" = "Succeeded" ] ; then 
+        if [ "$PIPELINESTATUS" == "Succeeded" ] ; then 
           echo " Success"
           break 
-        elif [ "$PIPELINESTATUS" = "Failed" ] ; then 
+        elif [ "$PIPELINESTATUS" == "Failed" ] ; then 
           echo " Failed"
           break 
         else 
