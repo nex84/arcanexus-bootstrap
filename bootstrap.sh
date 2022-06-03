@@ -24,6 +24,14 @@ unzip awscliv2.zip
 export AWS_DEFAULT_REGION=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
 echo "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" | tee -a /etc/environment
 
+# rundeck user
+useradd rundeck --create-home --shell /bin/zsh --groups sudo
+passwd rundeck
+mkdir /home/rundeck/.ssh
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDl1TU2sZnbsZrS0K37kPaFG7Y8kbnhAu/ikDvBND2Omd3Pc0fNbhH5eh+EDrm4UnAb9IXr/osDuF5JR8ao/oNKPk44M3c1P2ZYBtDdKi9b+Mi+ktq1c0DU/IkKvdn1Cf8xYq3dq7yLUILDLHL+riPOlq+N0Qr5yzaOMN/Jl71zuxP62gNvitQCzOBwF9aMPwyUmErleTotlhQPwe3NKPtOSI9I3tpFJy0r3bD7VstW8E/RA407Bg23uh6buHCZOo6Yt4E5v2e1jl69JD1XaX/7fDBoSeqqJv9QRgv/TiSssGf8IkJTXFHLwAA4K64wqnmhYyJruRACu0omxa2aKQZkVptYA0/lr+Qu+mF8hvqmETKD9bO+p/3HfKeajdcBAJpe4UzGvSjXkGBo0Pn3z1i7K/j66nudk/kU8CxUFgaTVclv/OdrC7sqkGwUyZu2WlKuDR+ZVhdlROSBicDeD5qU/sL0Yt4npdarP1/HPlYC/1TuZY52xJ9T2Cm03NH8Me0= rundeck" | tee -a /home/rundeck/.ssh/authorized_keys
+chown -R rundeck:  /home/rundeck/.ssh
+echo "rundeck   ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
+
 # CodeDeploy Agent
 curl https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install -o /tmp/install
 chmod +x /tmp/install 
