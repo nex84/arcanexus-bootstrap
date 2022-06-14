@@ -5,7 +5,7 @@ curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagel
 curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
 curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_collections -o /tmp/ansible_collections
 #activate repos
-amazon-linux-extras install -y epel
+amazon-linux-extras install -y epel python3.8
 
 yum makecache -y 
 yum update -y
