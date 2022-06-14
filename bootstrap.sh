@@ -11,7 +11,7 @@ yum makecache -y
 yum update -y
 yum install -y $(cat /tmp/packagelist_yum | egrep -v 'ˆ#')
 
-pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v 'ˆ#')
+pip3.8 install -U $(cat /tmp/packagelist_pip3 | egrep -v 'ˆ#')
 
 ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v 'ˆ#')
 
