@@ -16,10 +16,10 @@ pip3.8 install -U $(cat /tmp/packagelist_pip3 | egrep -v 'ˆ#')
 ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v 'ˆ#')
 
 # update awscli to v2
+AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
 yum remove awscli -y
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-AWSCLI_VERSION=`aws --version 2 > /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
 if [ "$AWSCLI_VERSION" == "2"  ]; then
   ./aws/install -U
 else
