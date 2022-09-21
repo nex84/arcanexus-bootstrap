@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/bash
 
 # retrieve dependancies
 curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
