@@ -1,5 +1,3 @@
-ansible
 boto3
 requests
 docker
-bpytop
