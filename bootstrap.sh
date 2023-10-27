@@ -1,79 +1,118 @@
 #!/bin/bash
 
+# init variables
+PLATFORM=
+OS=
+PKG_MANAGER=
+
 # retrieve dependancies
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
-curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_collections -o /tmp/ansible_collections
-#activate repos
-amazon-linux-extras install -y epel python3.8
+# packages
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_apt -o /tmp/packagelist_apt
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_collections -o /tmp/ansible_collections
+# platform dependant code
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap_aws.sh -o /tmp/bootstrap_aws.sh ; chmod +x /tmp/bootstrap_aws.sh
 
-yum makecache -y 
-yum update -y
-yum install -y $(cat /tmp/packagelist_yum | egrep -v 'ˆ#')
+# detect running platform
+if curl -s -m 2 http://169.254.169.254/latest/meta-data/ >/dev/null 2>&1; then
+  PLATFORM="aws"
+elif curl -s -m 2 http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01 >/dev/null 2>&1; then
+  PLATFORM="azure"
+elif curl -s -m 2 http://metadata.google.internal/computeMetadata/v1/ >/dev/null 2>&1; then
+  PLATFORM="gcp"
+else
+  PLATFORM="other"
+fi
+echo "PLATFORM=\"$PLATFORM\"" | sudo tee -a /etc/environment
+export PLATFORM
 
-pip3.8 install -U $(cat /tmp/packagelist_pip3 | egrep -v 'ˆ#')
+# detect packages manager and install packages 
+OS=`grep -e '^ID=' /etc/os-release | cut -d= -f2`
+echo "OS=\"$OS\"" | sudo tee -a /etc/environment
+export OS
+case $OS in
+  
+  amzn)
+    if [ -n "$(command -v yum)" ]
+    then
+      export PKG_MANAGER="yum"
+      echo 'PKG_MANAGER="yum"' | sudo tee -a /etc/environment
+    elif [ -n "$(command -v dnf)" ]
+    then
+      export PKG_MANAGER="dnf"
+      echo 'PKG_MANAGER="dnf"' | sudo tee -a /etc/environment
+    fi
+    #activate amazon repos
+    sudo amazon-linux-extras install -y epel python3.8
+    sudo yum makecache -y 
+    sudo yum update -y
+    sudo yum install -y $(cat /tmp/packagelist_yum | egrep -v '^#')
+    sudo yum remove awscli -y
+    sudo pip3.8 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
+    ;;
+  
+  debian|ubuntu)
+    export PKG_MANAGER="apt"
+    echo 'PKG_MANAGER="apt"' | sudo tee -a /etc/environment
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+    sudo apt update
+    sudo apt install -y $(cat /tmp/packagelist_apt | egrep -v '^#')
+    sudo apt dist-upgrade -y
+    sudo apt autoremove -y
+    sudo apt autoclean -y
+    sudo pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
+    ;;
 
-ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v 'ˆ#')
+esac
+
+# install Ansible collections
+sudo ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#')
 
 # update awscli to v2
 AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
-yum remove awscli -y
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 if [ "$AWSCLI_VERSION" == "2"  ]; then
-  ./aws/install -U
+  sudo ./aws/install -u #-U
 else
-  ./aws/install
+  sudo ./aws/install
 fi
 
-export AWS_DEFAULT_REGION=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
-echo "AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}" | tee -a /etc/environment
+# Workaround : oeuf/poule
+GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
+sudo mkdir -p /opt/
+cd /opt
+sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/nex84/scripts.git
 
+# nexus user
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_name=nexus -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=false
 # rundeck user
-groupadd sudo 
-useradd rundeck --create-home --shell /bin/zsh --groups sudo
-mkdir -p /home/rundeck/.ssh
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDl1TU2sZnbsZrS0K37kPaFG7Y8kbnhAu/ikDvBND2Omd3Pc0fNbhH5eh+EDrm4UnAb9IXr/osDuF5JR8ao/oNKPk44M3c1P2ZYBtDdKi9b+Mi+ktq1c0DU/IkKvdn1Cf8xYq3dq7yLUILDLHL+riPOlq+N0Qr5yzaOMN/Jl71zuxP62gNvitQCzOBwF9aMPwyUmErleTotlhQPwe3NKPtOSI9I3tpFJy0r3bD7VstW8E/RA407Bg23uh6buHCZOo6Yt4E5v2e1jl69JD1XaX/7fDBoSeqqJv9QRgv/TiSssGf8IkJTXFHLwAA4K64wqnmhYyJruRACu0omxa2aKQZkVptYA0/lr+Qu+mF8hvqmETKD9bO+p/3HfKeajdcBAJpe4UzGvSjXkGBo0Pn3z1i7K/j66nudk/kU8CxUFgaTVclv/OdrC7sqkGwUyZu2WlKuDR+ZVhdlROSBicDeD5qU/sL0Yt4npdarP1/HPlYC/1TuZY52xJ9T2Cm03NH8Me0= rundeck" | tee -a /home/rundeck/.ssh/authorized_keys
-chown -R rundeck:  /home/rundeck/.ssh
-echo "rundeck   ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers
-
-# CodeDeploy Agent
-curl https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install -o /tmp/install
-chmod +x /tmp/install 
-/tmp/install auto 
-service codedeploy-agent start 
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_name=rundeck -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
 
 #retrieve scripts
-for PIPELINENAME in GitScripts 
-do 
-    PIPELINEID=`aws codepipeline start-pipeline-execution --name $PIPELINENAME --region ${AWS_DEFAULT_REGION} | jq -r '.pipelineExecutionId' | sed 's/\\n//g' `
-    PIPELINESTATUS='' 
-    while [ 1 -eq 1 ] ; do 
-        PIPELINESTATUS=`aws codepipeline get-pipeline-execution --pipeline-name $PIPELINENAME --pipeline-execution-id $PIPELINEID --region ${AWS_DEFAULT_REGION} | jq '.pipelineExecution.status' -r | sed 's/\\n//g' ` 
-        if [ "$PIPELINESTATUS" == "Succeeded" ] ; then 
-          echo " Success"
-          break 
-        elif [ "$PIPELINESTATUS" == "Failed" ] ; then 
-          echo " Failed"
-          break 
-        else 
-          printf "." 
-          sleep 1 
-        fi
-    done 
-done
+GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
+curl -X POST \
+  -H "Authorization: token ${GIT_PAT_TOKEN}" \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/nex84/scripts/actions/workflows/deployToEC2.yml/dispatches \
+  -d '{"ref":"master"}'
+
+# launch platform specific steps
+/tmp/bootstrap_${PLATFORM}.sh
 
 # Install Datadog Agent
 DATADOG_API_KEY=`aws ssm get-parameter --name "datadog_api_key" --with-decryption | jq -r .Parameter.Value`
-/usr/local/bin/ansible-galaxy install Datadog.datadog
-# /usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install.yml
-/usr/local/bin/ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
+ansible-galaxy install Datadog.datadog
+# ansible-playbook /opt/scripts/ansible/datadog/install.yml
+ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
 
-# CloudWatch Agent
-/usr/local/bin/ansible-playbook /opt/scripts/ansible/amazon-cloudwatch-agent/install.yml
+# Install Prometheus Node-exporter
+ansible-playbook /opt/scripts/ansible/prometheus-node-exporter/install.yml
 
 #launch cloud init scripts
-/opt/scripts/AWS/cloud-init/common.sh
+/opt/scripts/$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')/cloud-init/common.sh
 
 # Final Report
-/usr/local/bin/ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
+ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
