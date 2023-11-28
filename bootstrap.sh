@@ -45,10 +45,10 @@ case $OS in
     fi
     #activate amazon repos
     sudo amazon-linux-extras install -y epel python3.8
-    sudo yum makecache -y 
-    sudo yum update -y
-    sudo yum install -y $(cat /tmp/packagelist_yum | egrep -v '^#')
-    sudo yum remove awscli -y
+    sudo ${PKG_MANAGER} makecache -y 
+    sudo ${PKG_MANAGER} update -y
+    sudo ${PKG_MANAGER} install -y $(cat /tmp/packagelist_yum | egrep -v '^#')
+    sudo ${PKG_MANAGER} remove awscli -y
     sudo pip3.8 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
     ;;
   
