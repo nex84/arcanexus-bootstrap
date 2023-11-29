@@ -68,7 +68,7 @@ case $OS in
 esac
 
 # install Ansible collections
-sudo ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#')
+# sudo ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#')
 
 # update awscli to v2
 AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
