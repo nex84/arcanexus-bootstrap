@@ -111,6 +111,7 @@ curl -X POST \
   -H "Accept: application/vnd.github.v3+json" \
   https://api.github.com/repos/nex84/scripts/actions/workflows/deployToEC2.yml/dispatches \
   -d '{"ref":"master"}'
+echo "Waiting 2m..."
 sleep 2m
 
 # launch platform specific steps
