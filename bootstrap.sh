@@ -74,10 +74,6 @@ case $OS in
 
 esac
 
-# install Ansible collections
-# echo "====== [ BASE : Install Ansible collections ] ======"
-# sudo ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#')
-
 # update awscli to v2
 echo "====== [ BASE : Update AWS CLI ] ======"
 AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
@@ -113,6 +109,9 @@ curl -X POST \
   -d '{"ref":"master"}'
 echo "Waiting 2m..."
 sleep 2m
+
+echo "====== [ BASE : Create logs dir ] ======"
+sudo mkdir -m 777 -p /var/log/arcanexus/
 
 # launch platform specific steps
 echo "====== [ BASE : Launch ${PLATFORM} specific script ] ======"
