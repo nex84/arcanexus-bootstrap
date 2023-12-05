@@ -109,7 +109,24 @@ curl -X POST \
   https://api.github.com/repos/nex84/scripts/actions/workflows/deployToEC2.yml/dispatches \
   -d '{"ref":"master"}'
 echo "Waiting 2m..."
-sleep 2m
+duration=120   # Duration in seconds
+interval=1     # Update interval in seconds
+progress_bar() {
+    local duration=$1
+    local interval=$2
+    local elapsed=0
+    local width=80
+    local progress_char="="
+    while [ $elapsed -le $duration ]; do
+        percentage=$((elapsed * 100 / duration))
+        num_chars=$((percentage * width / 100))
+        printf "[%-*s] %d%%\r" "$width" "$(printf "%${num_chars}s" | tr ' ' "$progress_char")" "$percentage"
+        sleep $interval
+        ((elapsed += interval))
+    done
+    echo
+}
+progress_bar $duration $interval
 
 echo "====== [ BASE : Create logs dir ] ======"
 sudo mkdir -m 777 -p /var/log/arcanexus/
