@@ -5,7 +5,9 @@ AWS_DEFAULT_REGION=
 
 # determine default AWS region
 echo "====== [ AWS : Determine default region ] ======"
-AWS_CURRENT_REGION=`curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
+# Get IMDSv2 token
+token=$(curl -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 60" -s http://169.254.169.254/latest/api/token)
+AWS_CURRENT_REGION=`curl -H "X-aws-ec2-metadata-token: $token" -s http://169.254.169.254/latest/dynamic/instance-identity/document|jq -r .region`
 if [ "$AWS_CURRENT_REGION" != "" ]
 then
   export AWS_DEFAULT_REGION=$AWS_CURRENT_REGION
