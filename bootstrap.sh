@@ -103,30 +103,40 @@ sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_n
 #retrieve scripts
 echo "====== [ BASE : Deploy scripts ] ======"
 GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
-curl -X POST \
-  -H "Authorization: token ${GIT_PAT_TOKEN}" \
+REPO=nex84/scripts
+WORKFLOW_NAME=deployToEC2.yml
+
+# Trigger the workflow
+execute=$(curl -s -X POST \
+  -H "Authorization: token $TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
-  https://api.github.com/repos/nex84/scripts/actions/workflows/deployToEC2.yml/dispatches \
-  -d '{"ref":"master"}'
-echo "Waiting 2m..."
-duration=120   # Duration in seconds
-interval=1     # Update interval in seconds
-progress_bar() {
-    local duration=$1
-    local interval=$2
-    local elapsed=0
-    local width=80
-    local progress_char="="
-    while [ $elapsed -le $duration ]; do
-        percentage=$((elapsed * 100 / duration))
-        num_chars=$((percentage * width / 100))
-        printf "[%-*s] %d%%\r" "$width" "$(printf "%${num_chars}s" | tr ' ' "$progress_char")" "$percentage"
-        sleep $interval
-        ((elapsed += interval))
-    done
-    echo
-}
-progress_bar $duration $interval
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/dispatches" \
+  -d '{"ref":"master"}' | jq -r '.id')
+sleep 5
+run_id=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
+
+echo "Workflow triggered with run ID: $run_id"
+
+# Wait for the workflow to finish
+while true; do
+  status=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.status')
+
+  if [ "$status" == "completed" ]; then
+    conclusion=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+      "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.conclusion')
+    echo "Workflow finished with conclusion: $conclusion"
+    break
+  elif [ "$status" == "in_progress" ] || [ "$status" == "queued" ]; then
+    echo "Workflow is still in progress..."
+  else
+    echo "Unexpected status: $status"
+    break
+  fi
+
+  sleep 10  # Wait for 10 seconds before checking again
+done
 
 echo "====== [ BASE : Create logs dir ] ======"
 sudo mkdir -m 777 -p /var/log/arcanexus/
