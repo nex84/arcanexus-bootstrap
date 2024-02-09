@@ -91,6 +91,7 @@ echo "====== [ BASE : Workaround : get scripts ] ======"
 GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
 sudo mkdir -p /opt/
 cd /opt
+if [ -e "/opt/scripts" ] ; then sudo rm -rf /opt/scripts ; fi
 sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/nex84/scripts.git
 
 # nexus user
@@ -108,23 +109,23 @@ WORKFLOW_NAME=deployToEC2.yml
 
 # Trigger the workflow
 execute=$(curl -s -X POST \
-  -H "Authorization: token $TOKEN" \
+  -H "Authorization: token $GIT_PAT_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/dispatches" \
   -d '{"ref":"master"}' | jq -r '.id')
 sleep 5
-run_id=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
 
 echo "Workflow triggered with run ID: $run_id"
 
 # Wait for the workflow to finish
 while true; do
-  status=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+  status=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
     "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.status')
 
   if [ "$status" == "completed" ]; then
-    conclusion=$(curl -s -H "Authorization: token $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+    conclusion=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
       "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.conclusion')
     echo "Workflow finished with conclusion: $conclusion"
     break
