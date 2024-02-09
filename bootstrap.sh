@@ -18,7 +18,7 @@ curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/boots
 # detect running platform
 echo "====== [ BASE : Detect running platform ] ======"
 token=$(curl -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 60" -s http://169.254.169.254/latest/api/token)
-if curl -s -m -H "X-aws-ec2-metadata-token: $token" 2 http://169.254.169.254/latest/meta-data/ >/dev/null 2>&1; then
+if curl -s -m 2 -H "X-aws-ec2-metadata-token: $token" 2 http://169.254.169.254/latest/meta-data/ >/dev/null 2>&1; then
   PLATFORM="aws"
 elif curl -s -m 2 http://169.254.169.254/metadata/instance/compute?api-version=2021-02-01 >/dev/null 2>&1; then
   PLATFORM="azure"
