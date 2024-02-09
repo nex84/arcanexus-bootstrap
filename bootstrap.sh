@@ -139,6 +139,43 @@ while true; do
   sleep 10  # Wait for 10 seconds before checking again
 done
 
+#retrieve docker-stacks
+echo "====== [ BASE : Deploy docker-stacks ] ======"
+REPO=Arcanexus/docker-stacks
+WORKFLOW_NAME=deployToEC2.yml
+
+# Trigger the workflow
+execute=$(curl -s -X POST \
+  -H "Authorization: token $GIT_PAT_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/dispatches" \
+  -d '{"ref":"master"}' | jq -r '.id')
+sleep 5
+run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
+
+echo "Workflow triggered with run ID: $run_id"
+
+# Wait for the workflow to finish
+while true; do
+  status=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.status')
+
+  if [ "$status" == "completed" ]; then
+    conclusion=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+      "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.conclusion')
+    echo "Workflow finished with conclusion: $conclusion"
+    break
+  elif [ "$status" == "in_progress" ] || [ "$status" == "queued" ]; then
+    echo "Workflow is still in progress..."
+  else
+    echo "Unexpected status: $status"
+    break
+  fi
+
+  sleep 10  # Wait for 10 seconds before checking again
+done
+
 echo "====== [ BASE : Create logs dir ] ======"
 sudo mkdir -m 777 -p /var/log/arcanexus/
 
