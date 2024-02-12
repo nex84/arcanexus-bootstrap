@@ -112,7 +112,7 @@ execute=$(curl -s -X POST \
   -H "Authorization: token $GIT_PAT_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/dispatches" \
-  -d '{"ref":"master"}' | jq -r '.id')
+  -d '{"ref":"main"}' | jq -r '.id')
 sleep 5
 run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
@@ -149,7 +149,7 @@ execute=$(curl -s -X POST \
   -H "Authorization: token $GIT_PAT_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/dispatches" \
-  -d '{"ref":"master"}' | jq -r '.id')
+  -d '{"ref":"main"}' | jq -r '.id')
 sleep 5
 run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
