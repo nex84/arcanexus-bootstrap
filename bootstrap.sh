@@ -92,7 +92,7 @@ GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | 
 sudo mkdir -p /opt/
 cd /opt
 if [ -e "/opt/scripts" ] ; then sudo rm -rf /opt/scripts ; fi
-sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/nex84/scripts.git
+sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/Arcanexus/scripts.git
 
 # nexus user
 echo "====== [ BASE : Create user : nexus ] ======"
@@ -104,7 +104,7 @@ sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_n
 #retrieve scripts
 echo "====== [ BASE : Deploy scripts ] ======"
 GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
-REPO=nex84/scripts
+REPO=Arcanexus/scripts
 WORKFLOW_NAME=deployToEC2.yml
 
 # Trigger the workflow
