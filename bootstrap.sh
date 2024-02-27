@@ -72,8 +72,9 @@ case $OS in
     sudo apt autoclean -y
     sudo pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
     ;;
-
 esac
+ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#')
+
 
 # update awscli to v2
 echo "====== [ BASE : Update AWS CLI ] ======"
@@ -184,11 +185,11 @@ echo "====== [ BASE : Launch ${PLATFORM} specific script ] ======"
 /tmp/bootstrap_${PLATFORM}.sh
 
 # Install Datadog Agent
-echo "====== [ BASE : Install Datadog Agent ] ======"
-DATADOG_API_KEY=`aws ssm get-parameter --name "datadog_api_key" --with-decryption | jq -r .Parameter.Value`
-ansible-galaxy install Datadog.datadog
-# ansible-playbook /opt/scripts/ansible/datadog/install.yml
-ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
+# echo "====== [ BASE : Install Datadog Agent ] ======"
+# DATADOG_API_KEY=`aws ssm get-parameter --name "datadog_api_key" --with-decryption | jq -r .Parameter.Value`
+# ansible-galaxy install Datadog.datadog
+# # ansible-playbook /opt/scripts/ansible/datadog/install.yml
+# ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
 
 # Install Prometheus Node-exporter
 echo "====== [ BASE : Install Prometheus node-exporter ] ======"
