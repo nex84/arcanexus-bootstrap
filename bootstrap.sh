@@ -65,6 +65,7 @@ case $OS in
     echo "====== [ BASE : Install base packages ] ======"
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+    sudo add-apt-repository --yes --update ppa:ansible/ansible
     sudo apt update
     sudo apt install -y $(cat /tmp/packagelist_apt | egrep -v '^#')
     sudo apt dist-upgrade -y
