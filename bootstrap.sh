@@ -118,8 +118,9 @@ execute=$(curl -s -X POST \
 sleep 5
 run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
-
-echo "Workflow triggered with run ID: $run_id"
+run_url=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].html_url')
+echo "Workflow triggered with run ID: $run_id [ $run_url ]"
 
 # Wait for the workflow to finish
 while true; do
@@ -155,8 +156,9 @@ execute=$(curl -s -X POST \
 sleep 5
 run_id=$(curl -s -H "Authorization: Bearer $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].id')
-
-echo "Workflow triggered with run ID: $run_id"
+run_url=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/$REPO/actions/workflows/$WORKFLOW_NAME/runs?event=workflow_dispatch" | jq -r '.workflow_runs[0].html_url')
+echo "Workflow triggered with run ID: $run_id [ $run_url ]"
 
 # Wait for the workflow to finish
 while true; do
