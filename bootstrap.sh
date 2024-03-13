@@ -205,3 +205,7 @@ echo "====== [ BASE : Launch Common script ] ======"
 # Final Report
 echo "====== [ BASE : Send report ] ======"
 ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
+
+echo "====== [ BASE : END OF CLOUD-INIT ] ======"
+echo "Rebooting to apply the latest updates"
+sudo shutdown -r now
