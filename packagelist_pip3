@@ -2,3 +2,4 @@ boto3
 requests
 docker
 j2cli
+bitwarden-sdk
