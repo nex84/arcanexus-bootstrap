@@ -92,7 +92,7 @@ fi
 
 # Workaround : oeuf/poule
 echo "====== [ BASE : Workaround : get scripts ] ======"
-GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
+GIT_PAT_TOKEN=`aws ssm get-parameter --region eu-west-1 --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
 sudo mkdir -p /opt/
 cd /opt
 if [ -e "/opt/scripts" ] ; then sudo rm -rf /opt/scripts ; fi
