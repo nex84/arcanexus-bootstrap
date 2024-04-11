@@ -3,3 +3,4 @@ requests
 docker
 j2cli
 bitwarden-sdk
+kubernetes
