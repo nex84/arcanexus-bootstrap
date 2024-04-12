@@ -73,6 +73,9 @@ case $OS in
     # add helm
     curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+    # add terraform
+    wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
     sudo apt update
     sudo apt install -y $(cat /tmp/packagelist_apt | egrep -v '^#')
@@ -95,6 +98,12 @@ if [ "$AWSCLI_VERSION" == "2"  ]; then
 else
   sudo ./aws/install
 fi
+
+echo "====== [ BASE : install Bitwarden CLI ] ======"
+bitwarden_cli_url=$(curl -s https://api.github.com/repos/bitwarden/sdk/releases/latest | grep "bws-x86_64-unknown-linux-gnu-" | cut -d '"' -f 4 | grep https)
+curl -Ls -o bitwarden-linux-amd64.zip "$bitwarden_cli_url"
+sudo unzip -o bitwarden-linux-amd64.zip -d /usr/bin && rm -f bitwarden-linux-amd64.zip
+sudo chmod 755 /usr/bin/bws
 
 # Workaround : oeuf/poule
 echo "====== [ BASE : Workaround : get scripts ] ======"

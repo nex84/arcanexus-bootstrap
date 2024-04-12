@@ -24,3 +24,4 @@ bpytop
 prometheus-node-exporter
 kubectl
 helm
+terraform
