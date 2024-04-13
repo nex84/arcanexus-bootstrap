@@ -25,3 +25,4 @@ prometheus-node-exporter
 kubectl
 helm
 terraform
+nfs-common
