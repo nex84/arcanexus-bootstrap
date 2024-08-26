@@ -2,3 +2,4 @@ amazon.aws
 community.aws
 bitwarden.secrets
 kubernetes.core
+community.docker
