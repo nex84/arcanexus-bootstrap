@@ -212,8 +212,8 @@ echo "====== [ BASE : Launch ${PLATFORM} specific script ] ======"
 # ansible-playbook /opt/scripts/ansible/datadog/install_manual.yml -e datadog_api_key="${DATADOG_API_KEY}"
 
 # Install Prometheus Node-exporter
-echo "====== [ BASE : Install Prometheus node-exporter ] ======"
-ansible-playbook /opt/scripts/ansible/prometheus-node-exporter/install.yml
+# echo "====== [ BASE : Install Prometheus node-exporter ] ======"
+# ansible-playbook /opt/scripts/ansible/prometheus-node-exporter/install.yml
 
 #launch cloud init scripts
 echo "====== [ BASE : Launch Common script ] ======"
