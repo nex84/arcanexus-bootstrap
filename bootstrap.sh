@@ -215,6 +215,10 @@ echo "====== [ BASE : Launch ${PLATFORM} specific script ] ======"
 # echo "====== [ BASE : Install Prometheus node-exporter ] ======"
 # ansible-playbook /opt/scripts/ansible/prometheus-node-exporter/install.yml
 
+# Install Promtail
+echo "====== [ BASE : Install Promtail ] ======"
+ansible-playbook /opt/scripts/ansible/promtail/install-local.yml
+
 #launch cloud init scripts
 echo "====== [ BASE : Launch Common script ] ======"
 /opt/scripts/$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')/cloud-init/common.sh
