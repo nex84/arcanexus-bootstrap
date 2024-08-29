@@ -98,6 +98,7 @@ if [ "$AWSCLI_VERSION" == "2"  ]; then
 else
   sudo ./aws/install
 fi
+rm -rf awscliv2.zip aws
 
 echo "====== [ BASE : install Bitwarden CLI ] ======"
 bitwarden_cli_url=$(curl -s https://api.github.com/repos/bitwarden/sdk/releases/latest | grep "bws-x86_64-unknown-linux-gnu-" | cut -d '"' -f 4 | grep https)
