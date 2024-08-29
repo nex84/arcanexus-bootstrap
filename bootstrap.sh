@@ -233,8 +233,10 @@ echo "====== [ BASE : Launch Common script ] ======"
 /opt/scripts/$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')/cloud-init/common.sh
 
 # Final Report
-echo "====== [ BASE : Send report ] ======"
-ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
+if [ "$PLATFORM" == "aws" ]; then
+  echo "====== [ BASE : Send report ] ======"
+  ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
+fi
 
 echo "====== [ BASE : END OF CLOUD-INIT ] ======"
 echo "Rebooting to apply the latest updates"
