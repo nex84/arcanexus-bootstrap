@@ -125,7 +125,11 @@ sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_n
 echo "====== [ BASE : Deploy scripts ] ======"
 GIT_PAT_TOKEN=`aws ssm get-parameter --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
 REPO=Arcanexus/scripts
-WORKFLOW_NAME=deployToEC2.yml
+if [ "$PLATFORM" = "aws" ]; then
+  WORKFLOW_NAME=deployToEC2.yml
+else
+  WORKFLOW_NAME=deployToOnPrem.yml
+fi
 
 # Trigger the workflow
 execute=$(curl -s -X POST \
@@ -163,7 +167,11 @@ done
 #retrieve docker-stacks
 echo "====== [ BASE : Deploy docker-stacks ] ======"
 REPO=Arcanexus/docker-stacks
-WORKFLOW_NAME=deployToEC2.yml
+if [ "$PLATFORM" = "aws" ]; then
+  WORKFLOW_NAME=deployToEC2.yml
+else
+  WORKFLOW_NAME=deployToOnPrem.yml
+fi
 
 # Trigger the workflow
 execute=$(curl -s -X POST \
