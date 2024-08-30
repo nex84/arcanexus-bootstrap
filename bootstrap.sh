@@ -99,7 +99,7 @@ case $OS in
     sudo apt autoclean -y
 
     echo "Update and install Python packages"
-    sudo pip3 install --break-system-packages -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
+    sudo pip3 install --break-system-packages -U $(cat /tmp/packagelist_pip3 | egrep -v '^#') || sudo pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
     ;;
 esac
 
