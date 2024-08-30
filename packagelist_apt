@@ -26,3 +26,4 @@ kubectl
 helm
 terraform
 nfs-common
+unzip
