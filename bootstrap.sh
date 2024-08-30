@@ -42,11 +42,11 @@ export OS
 case $OS in
   
   amzn)
-    if [ -n "$(command -v yum)" ]
+    if [[ -n "$(command -v yum)" ]]
     then
       export PKG_MANAGER="yum"
       echo 'PKG_MANAGER="yum"' | sudo tee -a /etc/environment
-    elif [ -n "$(command -v dnf)" ]
+    elif [[ -n "$(command -v dnf)" ]]
     then
       export PKG_MANAGER="dnf"
       echo 'PKG_MANAGER="dnf"' | sudo tee -a /etc/environment
@@ -75,9 +75,9 @@ case $OS in
     sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
     # add ansible
     echo "Add Ansible repository"
-    if [ "$OS" == "ubuntu" ]; then
+    if [[ "$OS" == "ubuntu" ]]; then
       sudo add-apt-repository --yes --update ppa:ansible/ansible
-    elif [ "$OS" == "debian" ]; then
+    elif [[ "$OS" == "debian" ]]; then
       UBUNTU_CODENAME=jammy
       wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --batch --yes --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
       echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
@@ -110,15 +110,15 @@ ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#'
 # update awscli to v2
 echo "====== [ BASE : Update AWS CLI ] ======"
 AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
-if [ -f "awscliv2.zip" ]; then
+if [[ -f "awscliv2.zip" ]]; then
   rm -rf awscliv2.zip
 fi
-if [ -d "aws" ]; then
+if [[ -d "aws" ]]; then
   rm -rf aws
 fi
 curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-if [ "$AWSCLI_VERSION" == "2"  ]; then
+if [[ "$AWSCLI_VERSION" == "2" ]]; then
   sudo ./aws/install -u #-U
 else
   sudo ./aws/install
@@ -136,7 +136,7 @@ echo "====== [ BASE : Workaround : get scripts ] ======"
 GIT_PAT_TOKEN=`aws ssm get-parameter --region eu-west-1 --name "git_pat_token" --with-decryption | jq -r .Parameter.Value`
 sudo mkdir -p /opt/
 cd /opt
-if [ -e "/opt/scripts" ] ; then sudo rm -rf /opt/scripts ; fi
+if [[ -e "/opt/scripts" ]] ; then sudo rm -rf /opt/scripts ; fi
 sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/Arcanexus/scripts.git
 
 # nexus user
@@ -216,12 +216,12 @@ while true; do
   status=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
     "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.status')
 
-  if [ "$status" == "completed" ]; then
+  if [[ "$status" == "completed" ]]; then
     conclusion=$(curl -s -H "Authorization: token $GIT_PAT_TOKEN" -H "Accept: application/vnd.github.v3+json" \
       "https://api.github.com/repos/$REPO/actions/runs/$run_id" | jq -r '.conclusion')
     echo "Workflow finished with conclusion: $conclusion"
     break
-  elif [ "$status" == "in_progress" ] || [ "$status" == "queued" ]; then
+  elif [[ "$status" == "in_progress" ]] || [[ "$status" == "queued" ]]; then
     echo "Workflow is still in progress..."
   else
     echo "Unexpected status: $status"
@@ -258,7 +258,7 @@ echo "====== [ BASE : Launch Common script ] ======"
 /opt/scripts/$(echo "$PLATFORM" | tr '[:lower:]' '[:upper:]')/cloud-init/common.sh
 
 # Final Report
-if [ "$PLATFORM" == "aws" ]; then
+if [[ "$PLATFORM" == "aws" ]]; then
   echo "====== [ BASE : Send report ] ======"
   ansible-playbook /opt/scripts/ansible/Common/cloud-init-report.yml
 fi
