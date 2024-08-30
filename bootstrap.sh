@@ -110,6 +110,12 @@ ansible-galaxy collection install $(cat /tmp/ansible_collections | egrep -v '^#'
 # update awscli to v2
 echo "====== [ BASE : Update AWS CLI ] ======"
 AWSCLI_VERSION=`aws --version 2> /dev/null | cut -d ' ' -f1 | cut -d '/' -f2 | cut -d '.' -f1`
+if [ -f "awscliv2.zip" ]; then
+  rm -rf awscliv2.zip
+fi
+if [ -d "aws" ]; then
+  rm -rf aws
+fi
 curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 if [ "$AWSCLI_VERSION" == "2"  ]; then
