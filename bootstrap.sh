@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # USAGE:
-# curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap.sh | bash
+# curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap.sh | bash
 
 
 # init variables
