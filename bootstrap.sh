@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# USAGE:
+# curl https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap.sh | bash
+
+
 # init variables
 PLATFORM=
 OS=
