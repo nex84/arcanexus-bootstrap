@@ -9,16 +9,6 @@ PLATFORM=
 OS=
 PKG_MANAGER=
 
-# retrieve dependancies
-echo "====== [ BASE : Retrieve dependancies ] ======"
-# packages
-curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
-curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_apt -o /tmp/packagelist_apt
-curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
-curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_collections -o /tmp/ansible_collections
-# platform dependant code
-curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap_aws.sh -o /tmp/bootstrap_aws.sh ; chmod +x /tmp/bootstrap_aws.sh
-
 # detect running platform
 echo "====== [ BASE : Detect running platform ] ======"
 token=$(curl -X PUT -H "X-aws-ec2-metadata-token-ttl-seconds: 60" -s http://169.254.169.254/latest/api/token)
@@ -34,11 +24,27 @@ fi
 echo "PLATFORM=\"$PLATFORM\"" | sudo tee -a /etc/environment
 export PLATFORM
 
-# detect packages manager and install packages 
+# detect package manager
 echo "====== [ BASE : Detect package manager ] ======"
 OS=`grep -e '^ID=' /etc/os-release | cut -d= -f2`
 echo "OS=\"$OS\"" | sudo tee -a /etc/environment
 export OS
+
+# retrieve dependancies
+echo "====== [ BASE : Retrieve dependancies ] ======"
+# packages
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_yum -o /tmp/packagelist_yum
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_apt -o /tmp/packagelist_apt
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/packagelist_pip3 -o /tmp/packagelist_pip3
+curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/ansible_collections -o /tmp/ansible_collections
+# platform dependant code
+for TARGET_OS in aws azure gcp other
+do
+  curl -s https://raw.githubusercontent.com/nex84/arcanexus-bootstrap/master/bootstrap_${TARGET_OS}.sh -o /tmp/bootstrap_${TARGET_OS}.sh
+  chmod +x /tmp/bootstrap_${TARGET_OS}.sh
+done
+
+# install packages 
 case $OS in
   
   amzn)
