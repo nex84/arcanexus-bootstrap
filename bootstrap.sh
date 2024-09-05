@@ -98,11 +98,12 @@ case $OS in
     echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
     echo "Update and install packages"
-    sudo apt update
-    sudo apt install -y $(cat /tmp/packagelist_apt | egrep -v '^#')
-    sudo apt dist-upgrade -y
-    sudo apt autoremove -y
-    sudo apt autoclean -y
+    sudo ${PKG_MANAGER} purge awscli -y
+    sudo ${PKG_MANAGER} update
+    sudo ${PKG_MANAGER} install -y $(cat /tmp/packagelist_apt | egrep -v '^#')
+    sudo ${PKG_MANAGER} dist-upgrade -y
+    sudo ${PKG_MANAGER} autoremove -y
+    sudo ${PKG_MANAGER} autoclean -y
 
     echo "Update and install Python packages"
     sudo pip3 install --break-system-packages -U $(cat /tmp/packagelist_pip3 | egrep -v '^#') || sudo pip3 install -U $(cat /tmp/packagelist_pip3 | egrep -v '^#')
