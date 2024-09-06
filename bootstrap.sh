@@ -124,7 +124,7 @@ if [[ -d "aws" ]]; then
   rm -rf aws
 fi
 curl "https://awscli.amazonaws.com/awscli-exe-linux-`uname -m`.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
+unzip -q awscliv2.zip
 if [[ "$AWSCLI_VERSION" == "2" ]]; then
   sudo ./aws/install -u #-U
 else
