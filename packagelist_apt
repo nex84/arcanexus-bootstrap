@@ -11,7 +11,7 @@ ruby
 jq
 python3-pip
 zsh
-collectd
+# collectd
 ansible
 apt-transport-https
 ca-certificates
