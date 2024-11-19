@@ -148,10 +148,13 @@ sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/Arcanexus/scripts.git
 
 # nexus user
 echo "====== [ BASE : Create user : nexus ] ======"
-sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_name=nexus -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=false
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=nexus -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=false
 # rundeck user
 echo "====== [ BASE : Create user : rundeck ] ======"
-sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -e user_name=rundeck -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=rundeck -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
+# automation user
+echo "====== [ BASE : Create user : automation ] ======"
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=automation -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
 
 #retrieve scripts
 echo "====== [ BASE : Deploy scripts ] ======"
