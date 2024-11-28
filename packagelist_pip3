@@ -4,3 +4,4 @@ docker
 j2cli
 bitwarden-sdk
 kubernetes
+awxkit
