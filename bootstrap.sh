@@ -133,10 +133,25 @@ fi
 rm -rf awscliv2.zip aws
 
 echo "====== [ BASE : install Bitwarden CLI ] ======"
-bitwarden_cli_url=$(curl -s https://api.github.com/repos/bitwarden/sdk/releases/latest | grep "bws-x86_64-unknown-linux-gnu-" | cut -d '"' -f 4 | grep https)
-curl -Ls -o bitwarden-linux-amd64.zip "$bitwarden_cli_url"
-sudo unzip -o bitwarden-linux-amd64.zip -d /usr/bin && rm -f bitwarden-linux-amd64.zip
-sudo chmod 755 /usr/bin/bws
+case $(uname) in
+  Linux)
+    bitwarden_package="bws-x86_64-unknown-linux-gnu-";;
+  Darwin)
+    bitwarden_package="bws-x86_64-apple-darwin-";;
+esac
+bitwarden_cli_url=$(curl -Ls https://api.github.com/repos/bitwarden/sdk/releases | grep $bitwarden_package | cut -d '"' -f 4 | grep https | head -n 1)
+curl -Ls -o bitwarden-cli.zip "$bitwarden_cli_url"
+if [[ "$(uname)" == "Darwin" ]]; then
+  mkdir ~/Tools/bin -p
+  if ! grep -q 'export PATH=$HOME/Tools/bin:$PATH' ~/.zshrc; then
+    echo 'export PATH=$HOME/Tools/bin:$PATH' >> ~/.zshrc
+  fi
+  unzip -o bitwarden-cli.zip -d ~/Tools/bin && rm -f bitwarden-cli.zip
+  sudo chmod 755 ~/Tools/bin/bws
+else
+  sudo unzip -o bitwarden-cli.zip -d /usr/bin && rm -f bitwarden-cli.zip
+  sudo chmod 755 /usr/bin/bws
+fi
 
 # Workaround : oeuf/poule
 echo "====== [ BASE : Workaround : get scripts ] ======"
