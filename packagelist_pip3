@@ -5,3 +5,4 @@ j2cli
 bitwarden-sdk
 kubernetes
 awxkit
+passlib
