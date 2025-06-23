@@ -95,7 +95,7 @@ case $OS in
     # add terraform
     echo "Add Hashicorp repository"
     wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs || grep VERSION_CODENAME /etc/os-release | cut -d= -f2) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
     echo "Update and install packages"
     sudo ${PKG_MANAGER} purge awscli -y
@@ -276,7 +276,7 @@ echo "====== [ BASE : Launch ${PLATFORM} specific script ] ======"
 
 # Install Promtail
 echo "====== [ BASE : Install Promtail ] ======"
-ansible-playbook /opt/scripts/ansible/promtail/install-local.yml
+ansible-playbook /opt/scripts/ansible/promtail/install-local-awx.yml -i /opt/scripts/ansible/inventory/localhost.yml
 
 #launch cloud init scripts
 echo "====== [ BASE : Launch Common script ] ======"
