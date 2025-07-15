@@ -1,4 +1,5 @@
 #!/bin/bash
 
-# Your code goes here
-echo "Nothing to do here"
+# Install Tailscale
+echo "====== [ Install Tailscale ] ======"
+ansible-playbook /opt/scripts/ansible/tailscale/install_tailscale_ubuntu.yml
