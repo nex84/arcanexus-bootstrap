@@ -163,13 +163,17 @@ sudo git clone https://nex84:${GIT_PAT_TOKEN}@github.com/Arcanexus/scripts.git
 
 # nexus user
 echo "====== [ BASE : Create user : nexus ] ======"
-sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=nexus -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=false
+PASSWORD=$(aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value)
+EXTRA_VARS=$(jq -n --arg user_name "nexus" --arg user_password "$PASSWORD" --arg user_sudogroup "sudo" --argjson user_nopasswd false '{user_name:$user_name,user_password:$user_password,user_sudogroup:$user_sudogroup,user_nopasswd:$user_nopasswd}')
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e "$EXTRA_VARS"
 # rundeck user
 echo "====== [ BASE : Create user : rundeck ] ======"
-sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=rundeck -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
+EXTRA_VARS=$(jq -n --arg user_name "rundeck" --arg user_password "$PASSWORD" --arg user_sudogroup "sudo" --argjson user_nopasswd true '{user_name:$user_name,user_password:$user_password,user_sudogroup:$user_sudogroup,user_nopasswd:$user_nopasswd}')
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e "$EXTRA_VARS"
 # automation user
 echo "====== [ BASE : Create user : automation ] ======"
-sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e user_name=automation -e user_password=`aws ssm get-parameter --name "default_password" --with-decryption | jq -r .Parameter.Value`  -e user_sudogroup=sudo -e user_nopasswd=true
+EXTRA_VARS=$(jq -n --arg user_name "automation" --arg user_password "$PASSWORD" --arg user_sudogroup "sudo" --argjson user_nopasswd true '{user_name:$user_name,user_password:$user_password,user_sudogroup:$user_sudogroup,user_nopasswd:$user_nopasswd}')
+sudo ansible-playbook /opt/scripts/ansible/Common/init_linux_user.yaml -i /opt/scripts/ansible/inventory/localhost.yml -e "$EXTRA_VARS"
 
 #retrieve scripts
 echo "====== [ BASE : Deploy scripts ] ======"
